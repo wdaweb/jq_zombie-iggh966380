@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* layout */
+        * {
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            margin: 0 auto;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .shiba {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            z-index: -1;
+        }
+
+        .display-none {
+            display: none;
+        }
+
+        /* 遊戲框框 */
+        #game {
+            margin: 0 auto;
+            width: 68%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: -2;
+        }
+
+        #game img {
+            height: 70px;
+            position: absolute;
+        }
+
+        .start-container {
+            width: 50%;
+            height: 40%;
+            border: 2px solid darkgray;
+            background: rgb(180, 178, 178);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .start-container h1 {
+            margin-bottom: 20px;
+            font-size: 3rem;
+        }
+        
+        /* btn */
+        .start-container .btn-start {
+            border: none;
+            background: rgb(180, 178, 178);
+            color: #fff;
+            font-size: 3rem;   
+            display: inline-block;
+            z-index: 2;
+        }
+        
+        .start-container .btn-start:hover {
+            color: rgb(138, 135, 135);
+        }
+
+        .score {
+            position: absolute;
+            top: 0;
+            left: 10px;
+            font-size: 3rem;
+        }
+
+        .second {
+            position: absolute;
+            top: 0;
+            right: 10px;
+            font-size: 3rem;    
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+      <img src="./images/bg.png" class="shiba">
+      <div id="game">
+        <div class="start-container" id="start-container">
+          <h1>嚕柴犬</h1>
+          <button class="btn-start" id="btn-start">遊戲開始</button>
+        </div>
+      </div>
+      <div class="score">
+          分數: <span id="text-score">0</span>
+      </div>
+      <div class="second">
+          剩餘: <span id="text-time">0</span> 秒
+      </div> 
+    </div>
+    <script src="./jquery-3.6.0.min.js"></script>
+    <script>
+        let score = 0
+        let countdown = 30
+        let timer = 0
+        let isFalse = false
+        let isStart = false
+        const move = (shibas) => {
+        (shibas).stop().animate({
+                //    left:Math.round(Math.random() * 70 )+ '%',
+                top: 100 + '%'
+            }, 5000, function () {
+                clearInterval(timer)
+                $('#game img').stop().remove()
+                $('#btn-start').attr('disabled', false)
+                if (!isFalse) {
+                    alert('沒有嚕到喔!')
+                    isFalse = true
+                    $('#text-score').text('0')
+                    $('#text-time').text('0')
+                    $('#start-container').show()
+                }
+            })
+        }
+
+        $('#btn-start').click(function () {
+            $('#start-container').hide()
+            $(this).attr('disabled', true)
+            //重設
+            isFalse = false
+            score = 0
+            $('#text-score').text(score)
+            countdown = 30
+            $('#text-time').text(countdown)
+            timer = setInterval(() => {
+                //倒數
+                countdown--
+                $('#text-time').text(countdown)
+                // 隨機產生
+                let rand = Math.round(Math.random() * 20)
+                if (rand > 5 && $('#game img').length < 20) {
+                    const shibas = $(`<img src="./images/shiba-before-hit.jpg" 
+                                    style="left:${Math.round(Math.random() * 90)}%;
+                                    top:${Math.round(Math.random() * 5)}%">`)
+                    $('#game').append(shibas)
+                    move(shibas)
+                }
+                // 時間到
+                if (countdown <= 0) {
+                    clearInterval(timer)
+                    alert('時間到')
+                    $('#game img').remove()
+                    $('text-score').remove()
+                    $(this).attr('disabled', false)
+                    $('#start-container').show()
+                }
+            }, 1000);
+        })
+
+        $('#game').on('click', 'img', function () {
+            $(this).attr('src', './images/shiba-after-hit.jpg')
+            $(this).stop()
+            $(this).animate({ top: '-=200px' }).fadeOut('slow')
+            //忽略點擊事件、無法點擊和選取
+            $(this).css({
+                'user-select': 'none',
+                '-webkit-user-drag': 'none',
+                'pointer-events': 'none'
+            })
+            score++
+            $('#text-score').text(score)
+        })
+    </script>
+</body>
+
+</html>
